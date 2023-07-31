@@ -1,6 +1,7 @@
 from pkg.plugin.models import *
 from pkg.plugin.host import EventContext, PluginHost
 
+require_ver("v2.5.1")
 
 # 注册插件
 @register(name="Preprocessor", description="预处理prompt：嵌入当前时间、使用的模型等信息。", version="0.1.0", author="RockChinQ")
