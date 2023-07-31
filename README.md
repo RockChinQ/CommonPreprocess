@@ -1,13 +1,20 @@
-# HelloPlugin
+# Preprocessor
 
-[QChatGPT](https://github.com/RockChinQ/QChatGPT) 项目的示例插件和模板  
-使用方法见[QChatGPT项目wiki](https://github.com/RockChinQ/QChatGPT/wiki/%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8)
+[QChatGPT项目](https://github.com/RockChinQ/QChatGPT)的插件，在请求接口回复前对`情景预设`进行预处理。
 
-## 依赖处理
+## 安装
 
-请将此插件依赖的Python库添加到requirements.txt文件内，以便主程序自动安装/升级此插件时解决依赖
+完成主程序配置之后，使用管理员QQ私聊机器人发送以下命令：
 
-## 发布
+```
+!plugin get https://github.com/RockChinQ/CommonPreprocess
+```
 
-推荐以储存库地址的形式发布插件，便于用户[自动安装](https://github.com/RockChinQ/QChatGPT/wiki/%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8#%E5%82%A8%E5%AD%98%E5%BA%93%E5%85%8B%E9%9A%86%E6%8E%A8%E8%8D%90)  
-欢迎以PR或issue的形式投稿您的插件到[主程序文档](https://github.com/RockChinQ/QChatGPT#%E6%8F%92%E4%BB%B6%E7%94%9F%E6%80%81)
+重启程序即可加载。
+
+## 使用
+
+若您的情景预设的内容中包含以下的key，如`$model` `$date_now`，插件将会自动替换成真实值
+
+- `$model`: 当前使用的模型名称
+- `$date_now`: 当前时间，如: `2023-07-31 17:19:13 Mon`
