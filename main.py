@@ -1,49 +1,41 @@
 from pkg.plugin.models import *
 from pkg.plugin.host import EventContext, PluginHost
 
-"""
-在收到私聊或群聊消息"hello"时，回复"hello, <发送者id>!"或"hello, everyone!"
-"""
-
 
 # 注册插件
-@register(name="Hello", description="hello world", version="0.1", author="RockChinQ")
-class HelloPlugin(Plugin):
+@register(name="Preprocessor", description="预处理prompt：嵌入当前时间、使用的模型等信息。", version="0.1.0", author="RockChinQ")
+class PreprocessPlugin(Plugin):
 
     # 插件加载时触发
     # plugin_host (pkg.plugin.host.PluginHost) 提供了与主程序交互的一些方法，详细请查看其源码
     def __init__(self, plugin_host: PluginHost):
         pass
 
-    # 当收到个人消息时触发
-    @on(PersonNormalMessageReceived)
-    def person_normal_message_received(self, event: EventContext, **kwargs):
-        msg = kwargs['text_message']
-        if msg == "hello":  # 如果消息为hello
+    @on(PromptPreProcessing)
+    def _(self, event: EventContext, default_prompt: list, **kwargs):
 
-            # 输出调试信息
-            logging.debug("hello, {}".format(kwargs['sender_id']))
+        import config
+        import datetime
+        import re
 
-            # 回复消息 "hello, <发送者id>!"
-            event.add_return("reply", ["hello, {}!".format(kwargs['sender_id'])])
+        local_default_prompt = default_prompt.copy()
 
-            # 阻止该事件默认行为（向接口获取回复）
-            event.prevent_default()
+        mapping = {
+            "model": config.completion_api_params['model'],
+            # yyyy-mm-dd hh:mm:ss day
+            "date_now": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S %a"),
+        }
 
-    # 当收到群消息时触发
-    @on(GroupNormalMessageReceived)
-    def group_normal_message_received(self, event: EventContext, **kwargs):
-        msg = kwargs['text_message']
-        if msg == "hello":  # 如果消息为hello
+        for round in local_default_prompt:
+            # 把 round['content'] 中的 $key 替换为 mapping[key]
+            for key in mapping:
+                round['content'] = re.sub(r"\$"+key, mapping[key], round['content'])
 
-            # 输出调试信息
-            logging.debug("hello, {}".format(kwargs['sender_id']))
+        event.add_return(
+            "default_prompt", local_default_prompt
+        )
 
-            # 回复消息 "hello, everyone!"
-            event.add_return("reply", ["hello, everyone!"])
-
-            # 阻止该事件默认行为（向接口获取回复）
-            event.prevent_default()
+        # event.prevent_postorder()
 
     # 插件卸载时触发
     def __del__(self):
