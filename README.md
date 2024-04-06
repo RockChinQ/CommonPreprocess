@@ -2,7 +2,7 @@
 
 [QChatGPT项目](https://github.com/RockChinQ/QChatGPT)的插件，在请求接口回复前对`情景预设`进行预处理。
 
-> 需要主程序版本高于`v2.5.1`
+> 需要主程序版本高于`v3.1`
 
 ## 安装
 
