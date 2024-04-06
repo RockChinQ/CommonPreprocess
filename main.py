@@ -1,28 +1,27 @@
-from pkg.plugin.models import *
-from pkg.plugin.host import EventContext, PluginHost
+from pkg.plugin.context import register, handler, llm_func, BasePlugin, APIHost, EventContext
+from pkg.plugin.events import *  # 导入事件类
 
-require_ver("v2.5.1")
 
 # 注册插件
 @register(name="Preprocessor", description="预处理prompt：嵌入当前时间、使用的模型等信息。", version="0.1.0", author="RockChinQ")
-class PreprocessPlugin(Plugin):
+class PreprocessPlugin(BasePlugin):
 
     # 插件加载时触发
     # plugin_host (pkg.plugin.host.PluginHost) 提供了与主程序交互的一些方法，详细请查看其源码
-    def __init__(self, plugin_host: PluginHost):
+    def __init__(self, plugin_host: APIHost):
         pass
 
-    @on(PromptPreProcessing)
-    def _(self, event: EventContext, default_prompt: list, **kwargs):
+    @handler(PromptPreProcessing)
+    async def _(self, ctx: EventContext):
 
         import config
         import datetime
         import re
 
-        local_default_prompt = default_prompt.copy()
+        local_default_prompt = ctx.event.default_prompt.copy()
 
         mapping = {
-            "model": config.completion_api_params['model'],
+            "model": ctx.event.query.use_model.name,
             # yyyy-mm-dd hh:mm:ss day
             "date_now": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S %a"),
         }
@@ -30,9 +29,9 @@ class PreprocessPlugin(Plugin):
         for round in local_default_prompt:
             # 把 round['content'] 中的 $key 替换为 mapping[key]
             for key in mapping:
-                round['content'] = re.sub(r"\$"+key, mapping[key], round['content'])
+                round.content = re.sub(r"\$"+key, mapping[key], round.content)
 
-        event.add_return(
+        ctx.add_return(
             "default_prompt", local_default_prompt
         )
 
