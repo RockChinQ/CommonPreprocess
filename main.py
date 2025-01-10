@@ -14,7 +14,7 @@ class PreprocessPlugin(BasePlugin):
     @handler(PromptPreProcessing)
     async def _(self, ctx: EventContext):
 
-        import config
+        import pkg.config
         import datetime
         import re
 
